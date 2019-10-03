@@ -1,11 +1,14 @@
 package zio.metrics
 
 
+import java.io.StringWriter
+
 import argonaut.Argonaut.jSingleObject
 import argonaut.Json
 import cats.data.Kleisli
 import cats.effect.ExitCode
 import io.prometheus.client._
+import io.prometheus.client.exporter.common.TextFormat
 import org.http4s.{EntityEncoder, HttpRoutes, Request, Response}
 import org.http4s.dsl.impl.Root
 import org.http4s.dsl.io.{->, /, GET, Ok}
@@ -225,25 +228,21 @@ object Metrics {
 
 
         def httpApp =
-          (metrics: CollectorRegistry) =>
             Router(
               "/metrics" -> HttpRoutes.of[HttpTask] {
-                case GET -> Root / filter =>
-                  val optFilter = if (filter == "ALL") None else Some(filter)
-                  val m: Json   = ReportPrinter.report(zio.metrics.PrometheusReporters.jsonPrometheusReporter)(metrics = metrics, filter = optFilter)(jSingleObject)
-                  println(m)
+                case GET -> Root =>
+                  val m = {
+                    val writer = new StringWriter
+                    TextFormat.write004(writer, registry.metricFamilySamples)
+                    writer.toString
+                  }
+
                   RIO(Response[HttpTask](Ok).withEntity(m))
               }
             ).orNotFound
 
-        builder(httpApp(registry)).fork.unit
+        builder(httpApp).fork.unit
       }
     }
-
-
-
-
-
-
   }
 }

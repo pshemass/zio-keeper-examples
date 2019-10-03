@@ -19,7 +19,7 @@ object ReportPrinter {
   def report[M](R: Reporter[M])(metrics: M, filter: Option[String])(
     cons: (String, Json) => Json
   ): Json = {
-
+//remove this
     val fs = Seq(
       ("counters", R.extractCounters),
       ("gauges", R.extractGauges),

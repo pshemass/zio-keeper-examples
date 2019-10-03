@@ -15,8 +15,10 @@ lazy val root = (project in file("."))
     dockerExposedPorts := Seq(5558),
     dockerRepository := Some("rzbikson"),
     libraryDependencies += scalaTest % Test,
-    libraryDependencies += "dev.zio" %% "zio-keeper" % "0.0.0+55-f0ee11b4",
+    libraryDependencies += "dev.zio" %% "zio-keeper" % "0.0.0+59-1b358415+20190930-2230",
     libraryDependencies += "io.prometheus" % "simpleclient" % "0.6.0",
+    libraryDependencies += "io.prometheus" % "simpleclient_hotspot" % "0.6.0",
+    libraryDependencies +="io.prometheus" % "simpleclient_httpserver" % "0.6.0",
     libraryDependencies ++= Seq(
       //"org.http4s" %% "http4s-blaze-client" % http4sVersion,
       //"org.http4s" %% "http4s-circe" % http4sVersion,
@@ -26,7 +28,8 @@ lazy val root = (project in file("."))
         "dev.zio"    %% "zio-interop-cats"     % interopVersion,
     ), libraryDependencies ++= Seq(
       "io.argonaut" %% "argonaut"        % "6.2.2",
-      "io.argonaut" %% "argonaut-scalaz" % "6.2.2"
+      "io.argonaut" %% "argonaut-scalaz" % "6.2.2",
+
     )
 
 //    libraryDependencies += "dev.zio" %% "zio-metrics" % "0.0.2"
