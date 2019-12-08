@@ -89,6 +89,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
 
 resource "kubernetes_namespace" "ingress-ns" {
+    depends_on = [local_file.kube_config]
     metadata {
         name = "ingress-ns"
     }

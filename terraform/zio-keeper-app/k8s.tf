@@ -12,10 +12,10 @@ resource "kubernetes_service" "echo-srv" {
     }
     spec {
         selector = {
-            app = "${kubernetes_deployment.echo-deployment.metadata.0.labels.app}"
+            app = "echo-app"
         }
         port {
-            name = "zio-keeper"
+            name = "zio-keeper-examples"
             port        = 5558
         }
 
@@ -24,11 +24,12 @@ resource "kubernetes_service" "echo-srv" {
     }
 }
 resource "kubernetes_deployment" "echo-deployment" {
+    depends_on = [kubernetes_service.echo-srv]
     metadata {
         name = "echo-deployment"
         namespace = "${kubernetes_namespace.zio-keeper-ns.metadata.0.name}"
         labels = {
-            app = "echo-app"
+            app = "${kubernetes_service.echo-srv.spec.0.selector.app}"
         }
     }
 
@@ -47,18 +48,21 @@ resource "kubernetes_deployment" "echo-deployment" {
                     app = "echo-app"
                 }
                 annotations = {
-                    "prometheus.io/scrape" =  'true'
-                    "prometheus.io/port" = '9102'
+                    "prometheus.io/scrape" = "true"
+                    "prometheus.io/port" = "9090"
 
                 }
             }
 
             spec {
                 container {
-                    image = "rzbikson/zio-keeper-examples:0.1.4"
-                    name  = "zio-keeper"
+                    image = "rzbikson/zio-keeper-examples:0.1.6"
+                    name  = "zio-keeper-examples"
                     port {
                         container_port = 5558
+                    }
+                    port {
+                        container_port = 9090
                     }
                 }
             }

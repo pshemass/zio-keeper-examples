@@ -18,6 +18,7 @@ resource "helm_release" "prometheus" {
 }
 
 data "kubernetes_service" "prometheus-server" {
+    depends_on = [helm_release.prometheus]
     metadata {
         name = "prometheus-server"
         namespace = "${kubernetes_namespace.monitoring-ns.metadata.0.name}"
@@ -29,25 +30,24 @@ resource "helm_release" "grafana" {
     chart     = "stable/grafana"
     namespace = "${kubernetes_namespace.monitoring-ns.metadata.0.name}"
 
-    set {
-        name  = "persistence.enabled"
-        value = true
-    }
-
-    set {
-        name  = "persistence.accessModes"
-        value = "{ReadWriteOnce}"
-    }
-
-    set {
-        name  = "persistence.size"
-        value = "8Gi"
-    }
-
-    set {
-        name = "dataSources"
-        value = "${file("${path.module}/datasources.yml")}"
-    }
+    values = [
+<<EOF
+apiVersion: 1
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+datasources:
+  apiVersion: 1
+  datasources.yaml:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server
+      access: proxy
+      isDefault: true
+EOF
+    ]
 }
 
 
